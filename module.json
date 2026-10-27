@@ -4,8 +4,10 @@
     "description": "A Foundry VTT module template using TypeScript + Vite",
     "version": "0.1.0",
     "author": "Your Name",
-    "minimumCoreVersion": "11",
-    "compatibleCoreVersion": "11",
+    "compatibility": {
+        "minimum": "13",
+        "verified": "14"
+    },
     "esmodules": ["dist/main.js"],
     "styles": ["dist/styles.css"],
     "packs": [],
