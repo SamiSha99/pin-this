@@ -1,7 +1,0 @@
-body {
-    --my-module-color: red;
-}
-
-h1 {
-    color: var(--my-module-color);
-}

@@ -1,18 +1,27 @@
 {
-    "name": "my-module",
-    "title": "My Module Template",
-    "description": "A Foundry VTT module template using TypeScript + Vite",
+    "id": "pin-this",
+    "title": "Pin This",
+    "description": "Pin the tabs that matter the most to you!",
     "version": "0.1.0",
-    "author": "Your Name",
     "compatibility": {
         "minimum": "13",
         "verified": "14"
     },
-    "esmodules": ["dist/main.js"],
-    "styles": ["dist/styles.css"],
-    "packs": [],
-    "languages": [],
-    "socket": false,
-    "manifest": "module.json",
-    "download": "https://yourserver.com/path/to/module.zip"
+    "authors": [
+        {
+            "name": "Your Name"
+        }
+    ],
+    "esmodules": ["scripts/module.js"],
+    "styles": ["styles/module.css"],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        }
+    ],
+    "url": "",
+    "manifest": "",
+    "download": ""
 }
