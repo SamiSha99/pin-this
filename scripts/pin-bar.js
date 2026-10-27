@@ -50,7 +50,7 @@ function onDragEnter(event) {
 
 function onDragOver(event) {
     event.preventDefault();
-    event.dataTransfer.dropEffect = "link";
+    event.dataTransfer.dropEffect = "copy";
 }
 
 function onDragLeave(event) {
