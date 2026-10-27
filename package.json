@@ -1,0 +1,15 @@
+{
+    "name": "foundry-module-template",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "watch": "vite build --watch"
+    },
+    "devDependencies": {
+        "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
+        "typescript": "^5.9.3",
+        "vite": "^8.0.0"
+    }
+}
