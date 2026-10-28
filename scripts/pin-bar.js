@@ -61,6 +61,7 @@ async function resolvePinnable(pin) {
         name: doc.name,
         img: doc.img ?? doc.thumb ?? null,
         fallbackIcon: FALLBACK_ICONS[doc.documentName] ?? "fa-thumbtack",
+        documentName: doc.documentName,
         open: () => openDocument(doc),
     };
 }
@@ -241,6 +242,7 @@ function buildTab(entry, uuid) {
     tab.classList.add("application", "minimized", "tab");
     tab.draggable = true;
     tab.dataset.uuid = uuid;
+    if (entry.documentName) tab.dataset.documentName = entry.documentName;
 
     if (game.settings.get(MODULE_ID, TAB_STYLE_SETTING) === TAB_STYLE_ICON) {
         tab.dataset.tooltip = entry.name;
@@ -293,9 +295,12 @@ function buildTab(entry, uuid) {
 }
 
 function onTabDragStart(event) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData(REORDER_MIME, event.currentTarget.dataset.uuid);
     const tab = event.currentTarget;
+    const { uuid, documentName } = tab.dataset;
+
+    event.dataTransfer.setData(REORDER_MIME, uuid);
+    if (documentName) event.dataTransfer.setData("text/plain", JSON.stringify({ type: documentName, uuid }));
+
     // delay before using this idk i hate this
     setTimeout(() => tab.classList.add("dragging"), 0);
 }
