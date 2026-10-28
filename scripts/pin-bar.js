@@ -11,18 +11,59 @@ export const PINNABLE_TYPES = [
     "Cards",
 ];
 
+const DRAGGABLE_DOCUMENT_TYPES = [...PINNABLE_TYPES, "JournalEntryPage"];
+
 const REORDER_MIME = "application/x-pin-this-uuid";
+const PACK_PIN_PREFIX = "Compendium:";
 
 const FALLBACK_ICONS = {
     Actor: "fa-user",
     Item: "fa-suitcase",
     JournalEntry: "fa-book-open",
+    JournalEntryPage: "fa-file-lines",
     Scene: "fa-map",
     RollTable: "fa-dice",
     Macro: "fa-terminal",
     Playlist: "fa-music",
     Cards: "fa-layer-group",
 };
+const PACK_FALLBACK_ICON = "fa-atlas";
+
+function isPackPin(pin) {
+    return pin.startsWith(PACK_PIN_PREFIX);
+}
+
+function packPin(collection) {
+    return `${PACK_PIN_PREFIX}${collection}`;
+}
+
+function openDocument(doc) {
+    if (doc.documentName === "JournalEntryPage")
+        return doc.parent?.sheet?.render(true, { pageId: doc.id });
+    return doc.sheet?.render(true);
+}
+
+async function resolvePinnable(pin) {
+    if (isPackPin(pin)) {
+        const pack = game.packs.get(pin.slice(PACK_PIN_PREFIX.length));
+        if (!pack) return null;
+        return {
+            name: pack.title,
+            img: null,
+            fallbackIcon: PACK_FALLBACK_ICON,
+            open: () => pack.render(true),
+        };
+    }
+
+    const doc = await fromUuid(pin);
+    if (!doc) return null;
+    return {
+        name: doc.name,
+        img: doc.img ?? doc.thumb ?? null,
+        fallbackIcon: FALLBACK_ICONS[doc.documentName] ?? "fa-thumbtack",
+        open: () => openDocument(doc),
+    };
+}
 
 let draggedDocName = null;
 
@@ -70,10 +111,15 @@ function onForeignDragStart(event) {
     } catch {
         return;
     }
+
+    if (data?.type === "Compendium" && data.collection) {
+        draggedDocName = game.packs.get(data.collection)?.title ?? null;
+        return;
+    }
     if (!data?.uuid) return;
 
     const doc = fromUuidSync(data.uuid);
-    if (doc && PINNABLE_TYPES.includes(doc.documentName)) draggedDocName = doc.name;
+    if (doc && DRAGGABLE_DOCUMENT_TYPES.includes(doc.documentName)) draggedDocName = doc.name;
 }
 
 function onForeignDragEnd() {
@@ -144,10 +190,16 @@ async function onDrop(event) {
     } catch {
         return;
     }
+
+    if (data?.type === "Compendium" && data.collection) {
+        if (!game.packs.get(data.collection)) return;
+        await addPin(packPin(data.collection));
+        return;
+    }
     if (!data?.uuid) return;
 
     const doc = await fromUuid(data.uuid);
-    if (!doc || !PINNABLE_TYPES.includes(doc.documentName)) return;
+    if (!doc || !DRAGGABLE_DOCUMENT_TYPES.includes(doc.documentName)) return;
 
     await addPin(doc.uuid);
 }
@@ -174,57 +226,50 @@ export async function renderPinBar() {
     if (!bar) return;
 
     const pins = game.settings.get(MODULE_ID, PIN_SETTING);
-    const docs = await Promise.all(pins.map((uuid) => fromUuid(uuid)));
+    const entries = await Promise.all(pins.map(resolvePinnable));
 
     bar.innerHTML = "";
-    docs.forEach((doc, index) => {
-        if (!doc) return;
+    entries.forEach((entry, index) => {
+        if (!entry) return;
         const uuid = pins[index];
-        bar.appendChild(buildTab(doc, uuid));
+        bar.appendChild(buildTab(entry, uuid));
     });
 }
 
-function buildTab(doc, uuid) {
+function buildTab(entry, uuid) {
     const tab = document.createElement("div");
     tab.classList.add("application", "minimized", "tab");
     tab.draggable = true;
     tab.dataset.uuid = uuid;
 
     if (game.settings.get(MODULE_ID, TAB_STYLE_SETTING) === TAB_STYLE_ICON) {
-        tab.dataset.tooltip = doc.name;
+        tab.dataset.tooltip = entry.name;
         tab.dataset.tooltipDirection = "DOWN";
         tab.dataset.tooltipClass = "pin-this-tooltip";
     } else {
-        tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: doc.name });
+        tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: entry.name });
     }
 
     const header = document.createElement("header");
     header.classList.add("window-header");
-    header.addEventListener("click", () => doc.sheet?.render(true));
+    header.addEventListener("click", () => entry.open());
 
-    const image = doc.img ?? doc.thumb ?? null;
-    if (image) {
+    if (entry.img) {
         const icon = document.createElement("img");
         icon.classList.add("thumb");
-        icon.src = image;
+        icon.src = entry.img;
         icon.alt = "";
         icon.draggable = false;
         header.appendChild(icon);
     } else {
         const icon = document.createElement("i");
-        icon.classList.add(
-            "window-icon",
-            "thumb",
-            "fa-fw",
-            "fa-solid",
-            FALLBACK_ICONS[doc.documentName] ?? "fa-thumbtack",
-        );
+        icon.classList.add("window-icon", "thumb", "fa-fw", "fa-solid", entry.fallbackIcon);
         header.appendChild(icon);
     }
 
     const title = document.createElement("h1");
     title.classList.add("window-title");
-    title.textContent = doc.name;
+    title.textContent = entry.name;
     header.appendChild(title);
 
     const remove = document.createElement("button");
