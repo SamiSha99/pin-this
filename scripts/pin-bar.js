@@ -1,4 +1,4 @@
-import { MODULE_ID, PIN_SETTING } from "./settings.js";
+import { MODULE_ID, PIN_SETTING, TAB_STYLE_SETTING, TAB_STYLE_ICON } from "./settings.js";
 
 export const PINNABLE_TYPES = [
     "Actor",
@@ -24,6 +24,16 @@ const FALLBACK_ICONS = {
     Cards: "fa-layer-group",
 };
 
+let draggedDocName = null;
+
+function openShelf() {
+    document.getElementById("pin-this-bar")?.classList.add("pin-this-open");
+}
+
+function closeShelf() {
+    document.getElementById("pin-this-bar")?.classList.remove("pin-this-open");
+}
+
 export function injectPinBar() {
     const parent = document.getElementById("interface");
     if (!parent || document.getElementById("pin-this-bar")) return;
@@ -33,29 +43,80 @@ export function injectPinBar() {
 
     const bar = document.createElement("div");
     bar.id = "pin-this-bar";
+    bar.classList.add(`pin-this-style-${game.settings.get(MODULE_ID, TAB_STYLE_SETTING)}`);
 
     for (const el of [hotzone, bar]) {
         el.addEventListener("dragenter", onDragEnter);
         el.addEventListener("dragover", onDragOver);
         el.addEventListener("dragleave", onDragLeave);
         el.addEventListener("drop", onDrop);
+
+        el.addEventListener("mouseenter", openShelf);
+        el.addEventListener("mouseleave", closeShelf);
     }
+
+    document.addEventListener("dragstart", onForeignDragStart);
+    document.addEventListener("dragend", onForeignDragEnd);
 
     parent.appendChild(hotzone);
     parent.appendChild(bar);
 }
 
+function onForeignDragStart(event) {
+    draggedDocName = null;
+    let data;
+    try {
+        data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+        return;
+    }
+    if (!data?.uuid) return;
+
+    const doc = fromUuidSync(data.uuid);
+    if (doc && PINNABLE_TYPES.includes(doc.documentName)) draggedDocName = doc.name;
+}
+
+function onForeignDragEnd() {
+    draggedDocName = null;
+    hideDragLabel();
+    document.getElementById("pin-this-bar")?.classList.remove("pin-this-drag-target");
+}
+
+function showDragLabel(bar) {
+    let label = document.getElementById("pin-this-drag-label");
+    if (!label) {
+        label = document.createElement("div");
+        label.id = "pin-this-drag-label";
+        bar.appendChild(label);
+    }
+    label.textContent = draggedDocName
+        ? game.i18n.format("PINTHIS.AddToShelf", { name: draggedDocName })
+        : game.i18n.localize("PINTHIS.DropToShelf");
+}
+
+function hideDragLabel() {
+    document.getElementById("pin-this-drag-label")?.remove();
+}
+
 function onDragEnter(event) {
+    if (event.dataTransfer.types.includes(REORDER_MIME)) return; // tab reorder, not a new pin
     event.preventDefault();
-    document.getElementById("pin-this-bar")?.classList.add("pin-this-drag-target");
+
+    const bar = document.getElementById("pin-this-bar");
+    if (!bar) return;
+    bar.classList.add("pin-this-drag-target");
+    showDragLabel(bar);
 }
 
 function onDragOver(event) {
+    if (event.dataTransfer.types.includes(REORDER_MIME)) return; // tab reorder, not a new pin
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
 }
 
 function onDragLeave(event) {
+    if (event.dataTransfer.types.includes(REORDER_MIME)) return; // tab reorder, not a new pin
+
     const bar = document.getElementById("pin-this-bar");
     const hotzone = document.getElementById("pin-this-hotzone");
     const related = event.relatedTarget;
@@ -68,11 +129,14 @@ function onDragLeave(event) {
     )
         return;
     bar?.classList.remove("pin-this-drag-target");
+    hideDragLabel();
 }
 
 async function onDrop(event) {
+    if (event.dataTransfer.types.includes(REORDER_MIME)) return; // tab reorder, not a new pin
     event.preventDefault();
     document.getElementById("pin-this-bar")?.classList.remove("pin-this-drag-target");
+    hideDragLabel();
 
     let data;
     try {
@@ -123,9 +187,17 @@ export async function renderPinBar() {
 function buildTab(doc, uuid) {
     const tab = document.createElement("div");
     tab.classList.add("application", "minimized", "pin-this-tab");
-    tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: doc.name });
     tab.draggable = true;
     tab.dataset.uuid = uuid;
+
+    if (game.settings.get(MODULE_ID, TAB_STYLE_SETTING) === TAB_STYLE_ICON) {
+        tab.dataset.tooltip = doc.name;
+        tab.dataset.tooltipDirection = "DOWN";
+        // margin offset for tooltip
+        tab.dataset.tooltipClass = "pin-this-tooltip";
+    } else {
+        tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: doc.name });
+    }
 
     const header = document.createElement("header");
     header.classList.add("window-header");

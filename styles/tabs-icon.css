@@ -1,0 +1,85 @@
+:root {
+    --tooltip-margin: 16px;
+}
+
+#tooltip.pin-this-tooltip {
+    margin-top: var(--tooltip-margin);
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab {
+    width: 64px !important;
+    min-width: 64px !important;
+    height: 96px !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden !important;
+    transition:
+        filter 0.15s ease,
+        height 0.25s ease;
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab:hover {
+    height: calc(96px + var(--tooltip-margin)) !important;
+    filter: brightness(1.2);
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab .window-header {
+    position: absolute !important;
+    inset: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    gap: 0;
+    pointer-events: auto !important;
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab .window-header > * {
+    margin: 0;
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab .window-title {
+    display: none;
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-icon {
+    flex: none !important;
+    width: 40px !important;
+    height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+#pin-this-bar.pin-this-style-icon i.pin-this-icon {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px !important;
+    line-height: 1 !important;
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab .header-control {
+    position: absolute !important;
+    inset: 3px 3px auto auto !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    padding: 0 !important;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+#pin-this-bar.pin-this-style-icon .pin-this-tab:hover .header-control {
+    opacity: 1;
+}

@@ -1,5 +1,8 @@
 export const MODULE_ID = "pin-this";
 export const PIN_SETTING = "pins";
+export const TAB_STYLE_SETTING = "tabStyle";
+export const TAB_STYLE_ICON = "icon";
+export const TAB_STYLE_SPINE = "spine";
 const VERSION_SETTING = "lastSeenVersion";
 
 export function registerSettings() {
@@ -8,6 +11,20 @@ export function registerSettings() {
         config: false,
         type: Array,
         default: [],
+    });
+
+    game.settings.register(MODULE_ID, TAB_STYLE_SETTING, {
+        name: "PINTHIS.SettingTabStyleName",
+        hint: "PINTHIS.SettingTabStyleHint",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            [TAB_STYLE_ICON]: "PINTHIS.SettingTabStyleIcon",
+            [TAB_STYLE_SPINE]: "PINTHIS.SettingTabStyleSpine",
+        },
+        default: TAB_STYLE_ICON,
+        requiresReload: true,
     });
 
     game.settings.register(MODULE_ID, VERSION_SETTING, {
