@@ -1,20 +1,22 @@
-#pin-this-bar.pin-this-style-spine .pin-this-tab {
-    min-width: 128px;
-    border-top: none;
-    border-radius: 0;
-    transition: padding-bottom 0.25s ease;
-}
+#pin-this-bar.style-spine {
+    .tab {
+        min-width: 128px;
+        border-top: none;
+        border-radius: 0;
+        transition: padding-bottom 0.25s ease;
 
-#pin-this-bar.pin-this-style-spine .pin-this-tab:hover {
-    padding-bottom: 6px;
-}
+        &:hover {
+            padding-bottom: 6px;
+        }
+    }
 
-#pin-this-bar.pin-this-style-spine .pin-this-icon {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    object-fit: cover;
-    border-radius: 3px;
-    text-align: center;
-    line-height: 20px;
+    .thumb {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        object-fit: cover;
+        border-radius: 3px;
+        text-align: center;
+        line-height: 20px;
+    }
 }

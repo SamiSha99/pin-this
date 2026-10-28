@@ -27,11 +27,11 @@ const FALLBACK_ICONS = {
 let draggedDocName = null;
 
 function openShelf() {
-    document.getElementById("pin-this-bar")?.classList.add("pin-this-open");
+    document.getElementById("pin-this-bar")?.classList.add("open");
 }
 
 function closeShelf() {
-    document.getElementById("pin-this-bar")?.classList.remove("pin-this-open");
+    document.getElementById("pin-this-bar")?.classList.remove("open");
 }
 
 export function injectPinBar() {
@@ -43,7 +43,7 @@ export function injectPinBar() {
 
     const bar = document.createElement("div");
     bar.id = "pin-this-bar";
-    bar.classList.add(`pin-this-style-${game.settings.get(MODULE_ID, TAB_STYLE_SETTING)}`);
+    bar.classList.add(`style-${game.settings.get(MODULE_ID, TAB_STYLE_SETTING)}`);
 
     for (const el of [hotzone, bar]) {
         el.addEventListener("dragenter", onDragEnter);
@@ -79,7 +79,7 @@ function onForeignDragStart(event) {
 function onForeignDragEnd() {
     draggedDocName = null;
     hideDragLabel();
-    document.getElementById("pin-this-bar")?.classList.remove("pin-this-drag-target");
+    document.getElementById("pin-this-bar")?.classList.remove("drag-target");
 }
 
 function showDragLabel(bar) {
@@ -104,7 +104,7 @@ function onDragEnter(event) {
 
     const bar = document.getElementById("pin-this-bar");
     if (!bar) return;
-    bar.classList.add("pin-this-drag-target");
+    bar.classList.add("drag-target");
     showDragLabel(bar);
 }
 
@@ -128,14 +128,14 @@ function onDragLeave(event) {
             related === hotzone)
     )
         return;
-    bar?.classList.remove("pin-this-drag-target");
+    bar?.classList.remove("drag-target");
     hideDragLabel();
 }
 
 async function onDrop(event) {
     if (event.dataTransfer.types.includes(REORDER_MIME)) return; // tab reorder, not a new pin
     event.preventDefault();
-    document.getElementById("pin-this-bar")?.classList.remove("pin-this-drag-target");
+    document.getElementById("pin-this-bar")?.classList.remove("drag-target");
     hideDragLabel();
 
     let data;
@@ -186,14 +186,13 @@ export async function renderPinBar() {
 
 function buildTab(doc, uuid) {
     const tab = document.createElement("div");
-    tab.classList.add("application", "minimized", "pin-this-tab");
+    tab.classList.add("application", "minimized", "tab");
     tab.draggable = true;
     tab.dataset.uuid = uuid;
 
     if (game.settings.get(MODULE_ID, TAB_STYLE_SETTING) === TAB_STYLE_ICON) {
         tab.dataset.tooltip = doc.name;
         tab.dataset.tooltipDirection = "DOWN";
-        // margin offset for tooltip
         tab.dataset.tooltipClass = "pin-this-tooltip";
     } else {
         tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: doc.name });
@@ -206,16 +205,16 @@ function buildTab(doc, uuid) {
     const image = doc.img ?? doc.thumb ?? null;
     if (image) {
         const icon = document.createElement("img");
-        icon.classList.add("pin-this-icon");
+        icon.classList.add("thumb");
         icon.src = image;
         icon.alt = "";
-        icon.draggable = false; // draggable by default
+        icon.draggable = false;
         header.appendChild(icon);
     } else {
         const icon = document.createElement("i");
         icon.classList.add(
             "window-icon",
-            "pin-this-icon",
+            "thumb",
             "fa-fw",
             "fa-solid",
             FALLBACK_ICONS[doc.documentName] ?? "fa-thumbtack",
@@ -253,12 +252,12 @@ function onTabDragStart(event) {
     event.dataTransfer.setData(REORDER_MIME, event.currentTarget.dataset.uuid);
     const tab = event.currentTarget;
     // delay before using this idk i hate this
-    setTimeout(() => tab.classList.add("pin-this-dragging"), 0);
+    setTimeout(() => tab.classList.add("dragging"), 0);
 }
 
 function onTabDragEnd(event) {
     const tab = event.currentTarget;
-    tab.classList.remove("pin-this-dragging");
+    tab.classList.remove("dragging");
 
     if (event.dataTransfer.dropEffect === "none") {
         renderPinBar(); // cancelled, or dropped somewhere invalid: discard the live reorder
@@ -282,7 +281,7 @@ function onDragTabOver(event) {
     event.dataTransfer.dropEffect = "move";
 
     const target = event.currentTarget;
-    const dragged = target.parentElement.querySelector(".pin-this-dragging");
+    const dragged = target.parentElement.querySelector(".dragging");
     if (!dragged || dragged === target) return;
 
     const rect = target.getBoundingClientRect();

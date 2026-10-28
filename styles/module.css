@@ -24,45 +24,44 @@
     transform: translate(-50%, -100%);
     transition: transform 0.25s ease-out;
     pointer-events: auto;
-}
 
-#pin-this-bar.pin-this-open,
-#pin-this-bar.pin-this-drag-target {
-    transform: translate(-50%, 0);
-}
+    &.open,
+    &.drag-target {
+        transform: translate(-50%, 0);
+    }
 
-#pin-this-bar.pin-this-drag-target {
-    outline: 2px dashed var(--color-border, #ff6400);
-    outline-offset: 4px;
-    min-width: 160px;
-    min-height: 48px;
-}
+    &.drag-target {
+        outline: 2px dashed var(--color-border, #ff6400);
+        outline-offset: 4px;
+        min-width: 160px;
+        min-height: 48px;
+    }
 
-#pin-this-bar:empty {
-    display: none;
-}
+    &:empty {
+        display: none;
+    }
 
-#pin-this-bar .pin-this-tab {
-    position: relative;
-    flex: 0 0 auto;
-    min-height: auto;
-    pointer-events: auto;
-}
+    .tab {
+        position: relative;
+        flex: 0 0 auto;
+        min-height: auto;
+        pointer-events: auto;
 
-#pin-this-bar .pin-this-tab .window-header {
-    cursor: pointer;
-    pointer-events: auto;
-}
+        .window-header {
+            cursor: pointer;
+            pointer-events: auto;
+        }
 
-#pin-this-bar .pin-this-tab.pin-this-dragging {
-    background: rgba(90, 110, 140, 0.35);
-    border: none;
-    border-radius: 6px;
-    /* box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); */
-}
+        &.dragging {
+            background: rgba(90, 110, 140, 0.35);
+            border: none;
+            border-radius: 6px;
 
-#pin-this-bar .pin-this-tab.pin-this-dragging .window-header > * {
-    visibility: hidden;
+            .window-header > * {
+                visibility: hidden;
+            }
+        }
+    }
 }
 
 #pin-this-drag-label {
