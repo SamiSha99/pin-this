@@ -1,0 +1,9 @@
+{
+    "name": "pin-this",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "devDependencies": {
+        "fvtt-types": "14.369.0-beta.20261027165341"
+    }
+}
