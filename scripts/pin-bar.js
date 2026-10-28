@@ -11,6 +11,8 @@ export const PINNABLE_TYPES = [
     "Cards",
 ];
 
+const REORDER_MIME = "application/x-pin-this-uuid";
+
 const FALLBACK_ICONS = {
     Actor: "fa-user",
     Item: "fa-suitcase",
@@ -122,6 +124,8 @@ function buildTab(doc, uuid) {
     const tab = document.createElement("div");
     tab.classList.add("application", "minimized", "pin-this-tab");
     tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: doc.name });
+    tab.draggable = true;
+    tab.dataset.uuid = uuid;
 
     const header = document.createElement("header");
     header.classList.add("window-header");
@@ -133,6 +137,7 @@ function buildTab(doc, uuid) {
         icon.classList.add("pin-this-icon");
         icon.src = image;
         icon.alt = "";
+        icon.draggable = false; // draggable by default
         header.appendChild(icon);
     } else {
         const icon = document.createElement("i");
@@ -163,5 +168,58 @@ function buildTab(doc, uuid) {
     header.appendChild(remove);
 
     tab.appendChild(header);
+    tab.addEventListener("dragstart", onTabDragStart);
+    tab.addEventListener("dragend", onTabDragEnd);
+    tab.addEventListener("dragenter", onDragTabEnter);
+    tab.addEventListener("dragover", onDragTabOver);
+    tab.addEventListener("drop", onTabDrop);
     return tab;
+}
+
+function onTabDragStart(event) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData(REORDER_MIME, event.currentTarget.dataset.uuid);
+    const tab = event.currentTarget;
+    // delay before using this idk i hate this
+    setTimeout(() => tab.classList.add("pin-this-dragging"), 0);
+}
+
+function onTabDragEnd(event) {
+    const tab = event.currentTarget;
+    tab.classList.remove("pin-this-dragging");
+
+    if (event.dataTransfer.dropEffect === "none") {
+        renderPinBar(); // cancelled, or dropped somewhere invalid: discard the live reorder
+        return;
+    }
+
+    const next = [...tab.parentElement.children].map((el) => el.dataset.uuid);
+    setPins(next);
+}
+
+function onDragTabEnter(event) {
+    if (!event.dataTransfer.types.includes(REORDER_MIME)) return; // not a tab reorder, let it bubble
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function onDragTabOver(event) {
+    if (!event.dataTransfer.types.includes(REORDER_MIME)) return; // not a tab reorder, let it bubble
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+
+    const target = event.currentTarget;
+    const dragged = target.parentElement.querySelector(".pin-this-dragging");
+    if (!dragged || dragged === target) return;
+
+    const rect = target.getBoundingClientRect();
+    const before = event.clientX < rect.left + rect.width / 2;
+    target.parentElement.insertBefore(dragged, before ? target : target.nextSibling);
+}
+
+function onTabDrop(event) {
+    if (!event.dataTransfer.types.includes(REORDER_MIME)) return; // not a tab reorder, let it bubble
+    event.preventDefault();
+    event.stopPropagation();
 }

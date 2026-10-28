@@ -60,3 +60,14 @@
     text-align: center;
     line-height: 20px;
 }
+
+#pin-this-bar .pin-this-tab.pin-this-dragging {
+    background: rgba(90, 110, 140, 0.35);
+    border: none;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+#pin-this-bar .pin-this-tab.pin-this-dragging .window-header > * {
+    visibility: hidden;
+}
