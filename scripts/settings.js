@@ -7,7 +7,7 @@ const VERSION_SETTING = "lastSeenVersion";
 
 export function registerSettings() {
     game.settings.register(MODULE_ID, PIN_SETTING, {
-        scope: "client",
+        scope: "user",
         config: false,
         type: Array,
         default: [],
@@ -16,7 +16,7 @@ export function registerSettings() {
     game.settings.register(MODULE_ID, TAB_STYLE_SETTING, {
         name: "PINTHIS.SettingTabStyleName",
         hint: "PINTHIS.SettingTabStyleHint",
-        scope: "client",
+        scope: "world",
         config: true,
         type: String,
         choices: {
