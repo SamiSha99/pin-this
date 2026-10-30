@@ -15,6 +15,7 @@ const DRAGGABLE_DOCUMENT_TYPES = [...PINNABLE_TYPES, "JournalEntryPage"];
 
 const REORDER_MIME = "application/x-pin-this-uuid";
 const PACK_PIN_PREFIX = "Compendium:";
+const HEADER_PIN_ACTION = "pin-this.togglePin";
 
 const FALLBACK_ICONS = {
     Actor: "fa-user",
@@ -208,6 +209,7 @@ async function onDrop(event) {
 async function setPins(next) {
     await game.settings.set(MODULE_ID, PIN_SETTING, next);
     renderPinBar();
+    refreshHeaderPinButtons();
 }
 
 async function addPin(uuid) {
@@ -216,10 +218,24 @@ async function addPin(uuid) {
     await setPins([...pins, uuid]);
 }
 
-export async function togglePin(uuid) {
+async function confirmUnpin(event) {
+    if (event?.shiftKey) return true;
+    return foundry.applications.api.DialogV2.confirm({
+        window: { title: "PINTHIS.UnpinTitle", icon: "fa-solid fa-thumbtack" },
+        content: `<p>${game.i18n.localize("PINTHIS.UnpinConfirm")}</p>
+            <p class="notification info"><strong>${game.i18n.localize("PINTHIS.UnpinShiftTip")}</strong></p>`,
+        rejectClose: false,
+        modal: true,
+    });
+}
+
+export async function togglePin(uuid, event) {
+    if (!game.settings.get(MODULE_ID, PIN_SETTING).includes(uuid)) return addPin(uuid);
+    if (!(await confirmUnpin(event))) return;
+
+    // the pins may have changed while the dialog was open
     const pins = game.settings.get(MODULE_ID, PIN_SETTING);
-    const next = pins.includes(uuid) ? pins.filter((u) => u !== uuid) : [...pins, uuid];
-    await setPins(next);
+    await setPins(pins.filter((u) => u !== uuid));
 }
 
 export async function renderPinBar() {
@@ -281,7 +297,7 @@ function buildTab(entry, uuid) {
     remove.dataset.tooltip = game.i18n.localize("PINTHIS.Unpin");
     remove.addEventListener("click", (event) => {
         event.stopPropagation();
-        togglePin(uuid);
+        togglePin(uuid, event);
     });
     header.appendChild(remove);
 
@@ -299,7 +315,8 @@ function onTabDragStart(event) {
     const { uuid, documentName } = tab.dataset;
 
     event.dataTransfer.setData(REORDER_MIME, uuid);
-    if (documentName) event.dataTransfer.setData("text/plain", JSON.stringify({ type: documentName, uuid }));
+    if (documentName)
+        event.dataTransfer.setData("text/plain", JSON.stringify({ type: documentName, uuid }));
 
     // delay before using this idk i hate this
     setTimeout(() => tab.classList.add("dragging"), 0);
@@ -343,4 +360,46 @@ function onTabDrop(event) {
     if (!event.dataTransfer.types.includes(REORDER_MIME)) return; // not a tab reorder, let it bubble
     event.preventDefault();
     event.stopPropagation();
+}
+
+function getAppPin(app) {
+    if (app instanceof foundry.applications.sidebar.apps.Compendium)
+        return packPin(app.collection.collection);
+    if (!(app instanceof foundry.applications.api.DocumentSheetV2)) return null;
+
+    const doc = app.document;
+    if (!doc?.id || !DRAGGABLE_DOCUMENT_TYPES.includes(doc.documentName)) return null;
+    if (doc.sheet !== app) return null; // ownership, sheet config, etc. also carry a document
+    return doc.uuid;
+}
+
+export function addHeaderPinButton(app, _element, _context, options) {
+    if (!options.isFirstRender || !app.hasFrame) return; // only built once
+    const pin = getAppPin(app);
+    if (!pin) return;
+
+    app.options.actions[HEADER_PIN_ACTION] = (event) => togglePin(pin, event);
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.classList.add("header-control", "icon", "fa-solid", "fa-thumbtack", "pin-this-toggle");
+    button.dataset.action = HEADER_PIN_ACTION;
+    button.dataset.tooltip = "";
+    button.dataset.pin = pin;
+    updateHeaderPinButton(button, game.settings.get(MODULE_ID, PIN_SETTING).includes(pin));
+    app.window.close.before(button);
+}
+
+function updateHeaderPinButton(button, pinned) {
+    button.classList.toggle("active", pinned);
+    button.ariaPressed = String(pinned);
+    button.ariaLabel = game.i18n.localize(pinned ? "PINTHIS.Unpin" : "PINTHIS.PinToShelf");
+}
+
+function refreshHeaderPinButtons() {
+    const pins = game.settings.get(MODULE_ID, PIN_SETTING);
+    for (const app of foundry.applications.instances.values()) {
+        const button = app.window?.header?.querySelector(".pin-this-toggle");
+        if (button) updateHeaderPinButton(button, pins.includes(button.dataset.pin));
+    }
 }

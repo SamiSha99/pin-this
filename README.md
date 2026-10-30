@@ -18,7 +18,7 @@ For players, pin the things you reach for most, maybe your character sheet, your
 
 ## List of Pinnable Sheets:
 
-Open the context menu then click "📌 Toggle Pin" or drag any of these onto the shelf:
+Open the context menu then click "📌 Toggle Pin", click the 📌 button in the sheet's header, or drag any of these onto the shelf:
 
 - Actors
 - Items (weapons, gear, spells, etc)

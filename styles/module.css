@@ -65,6 +65,10 @@
     }
 }
 
+.application .window-header button.header-control.pin-this-toggle.active {
+    --button-text-color: var(--color-text-accent);
+}
+
 #pin-this-drag-label {
     position: absolute;
     inset: 0;
