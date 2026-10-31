@@ -35,7 +35,7 @@ function isPackPin(pin) {
     return pin.startsWith(PACK_PIN_PREFIX);
 }
 
-function packPin(collection) {
+export function packPin(collection) {
     return `${PACK_PIN_PREFIX}${collection}`;
 }
 

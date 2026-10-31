@@ -2,6 +2,7 @@ import { MODULE_ID, registerSettings, announceVersion } from "./settings.js";
 import {
     PINNABLE_TYPES,
     DRAGGABLE_DOCUMENT_TYPES,
+    packPin,
     injectPinBar,
     renderPinBar,
     togglePin,
@@ -25,20 +26,40 @@ Hooks.once("ready", () => {
     if (game.user.isGM) announceVersion();
 });
 
+function toggleEntry(getPin) {
+    return {
+        label: "PINTHIS.ContextToggle",
+        icon: "fa-solid fa-thumbtack",
+        onClick: (event, target) => {
+            const pin = getPin(target);
+            if (pin) togglePin(pin, event);
+        },
+    };
+}
+
 for (const type of PINNABLE_TYPES) {
-    Hooks.on(`get${type}ContextOptions`, (_application, menuItems) => {
-        menuItems.push({
-            label: "PINTHIS.ContextToggle",
-            icon: "fa-solid fa-thumbtack",
-            onClick: (event, target) => {
+    Hooks.on(`get${type}ContextOptions`, (application, menuItems) => {
+        menuItems.push(
+            toggleEntry((target) => {
                 const entry = target.closest("[data-entry-id]");
                 const id = entry?.dataset?.entryId ?? entry?.dataset?.documentId;
-                const doc = game.collections.get(type)?.get(id);
-                if (doc) togglePin(doc.uuid, event);
-            },
-        });
+                if (!id) return null;
+                const collection = application.collection;
+                return collection?.getUuid?.(id) ?? collection?.get(id)?.uuid;
+            }),
+        );
     });
 }
+
+Hooks.on("getJournalEntryPageContextOptions", (application, menuItems) => {
+    menuItems.push(
+        toggleEntry((target) => application.document.pages.get(target.dataset.pageId)?.uuid),
+    );
+});
+
+Hooks.on("getCompendiumContextOptions", (_application, menuItems) => {
+    menuItems.push(toggleEntry((target) => target.dataset.pack && packPin(target.dataset.pack)));
+});
 
 for (const type of DRAGGABLE_DOCUMENT_TYPES) Hooks.on(`delete${type}`, refreshOnDelete);
 Hooks.on("renderCompendiumDirectory", refreshOnPackDelete);
