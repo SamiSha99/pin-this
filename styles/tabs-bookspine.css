@@ -1,12 +1,23 @@
+:root {
+    --pin-this-spine-width: 220px;
+    --pin-this-spine-pull: 6px;
+}
+
 #pin-this-bar.style-spine {
+    #pin-this-tabs {
+        display: flex;
+        flex-direction: column;
+        width: var(--pin-this-spine-width);
+        gap: 0;
+    }
+
     .tab {
-        min-width: 128px;
-        border-top: none;
+        margin-right: var(--pin-this-spine-pull);
         border-radius: 0;
-        transition: padding-bottom 0.25s ease;
+        transition: margin-right 0.25s ease;
 
         &:hover {
-            padding-bottom: 6px;
+            margin-right: 0;
         }
     }
 

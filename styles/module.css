@@ -1,45 +1,97 @@
 @import url("tabs-icon.css");
 @import url("tabs-bookspine.css");
 
+:root {
+    --pin-this-shelf-height: min(420px, 70vh);
+    --pin-this-shelf-padding: 6px;
+}
+
 #pin-this-hotzone {
     position: fixed;
-    top: 0;
+    top: 50%;
     left: 0;
-    right: 0;
-    height: 24px;
+    width: 16px;
+    height: var(--pin-this-shelf-height);
+    transform: translateY(-50%);
     z-index: calc(var(--z-index-window) + 1);
     pointer-events: auto;
+
+    /* the little handle that shows where the shelf is hiding */
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 3px;
+        width: 5px;
+        height: 64px;
+        transform: translateY(-50%);
+        border-radius: 3px;
+        background: var(--color-light-1, #fff);
+        box-shadow: 0 0 4px #000;
+        opacity: 0.4;
+        transition: opacity 0.25s ease;
+    }
+
+    &:hover::before {
+        opacity: 0.8;
+    }
+
+    &:has(+ #pin-this-bar:is(.open, .drag-target))::before {
+        opacity: 0;
+    }
 }
 
 #pin-this-bar {
     position: fixed;
-    top: 0;
-    left: 50%;
+    top: 50%;
+    left: 0;
     z-index: calc(var(--z-index-window) + 2);
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    max-width: 70vw;
-    overflow-x: auto;
-    transform: translate(-50%, -100%);
+    background: var(--color-cool-5-75, rgba(11, 10, 19, 0.75));
+    border: 1px solid var(--color-cool-4, #302831);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 0 10px #000;
+
+    transform: translate(calc(-100% - 16px), -50%);
     transition: transform 0.25s ease-out;
     pointer-events: auto;
 
     &.open,
     &.drag-target {
-        transform: translate(-50%, 0);
+        transform: translate(0, -50%);
     }
 
     &.drag-target {
         outline: 2px dashed var(--color-border, #ff6400);
         outline-offset: 4px;
-        min-width: 160px;
-        min-height: 48px;
     }
 
-    &:empty {
-        display: none;
+    &.empty #pin-this-empty {
+        display: flex;
     }
+}
+
+#pin-this-empty {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0 16px;
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-secondary, #aaa);
+    pointer-events: none;
+}
+
+#pin-this-tabs {
+    height: var(--pin-this-shelf-height);
+    padding: var(--pin-this-shelf-padding);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    align-content: start;
 
     .tab {
         position: relative;
@@ -79,7 +131,7 @@
     background: var(--color-cool-5, #1b1d23);
     color: #fff;
     font-weight: 600;
-    white-space: nowrap;
+    text-align: center;
     padding: 0 12px;
     z-index: 2;
     border-radius: inherit;

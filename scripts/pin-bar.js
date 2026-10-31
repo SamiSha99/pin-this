@@ -14,6 +14,7 @@ export const PINNABLE_TYPES = [
 const DRAGGABLE_DOCUMENT_TYPES = [...PINNABLE_TYPES, "JournalEntryPage"];
 
 const REORDER_MIME = "application/x-pin-this-uuid";
+const ICON_COLUMNS = 3;
 const PACK_PIN_PREFIX = "Compendium:";
 const HEADER_PIN_ACTION = "pin-this.togglePin";
 
@@ -67,6 +68,10 @@ async function resolvePinnable(pin) {
     };
 }
 
+function isIconStyle() {
+    return game.settings.get(MODULE_ID, TAB_STYLE_SETTING) === TAB_STYLE_ICON;
+}
+
 let draggedDocName = null;
 
 function openShelf() {
@@ -86,7 +91,16 @@ export function injectPinBar() {
 
     const bar = document.createElement("div");
     bar.id = "pin-this-bar";
-    bar.classList.add(`style-${game.settings.get(MODULE_ID, TAB_STYLE_SETTING)}`);
+    bar.classList.add(`style-${game.settings.get(MODULE_ID, TAB_STYLE_SETTING)}`, "empty");
+
+    const tabs = document.createElement("div");
+    tabs.id = "pin-this-tabs";
+    bar.appendChild(tabs);
+
+    const emptyHint = document.createElement("p");
+    emptyHint.id = "pin-this-empty";
+    emptyHint.textContent = game.i18n.localize("PINTHIS.EmptyShelf");
+    bar.appendChild(emptyHint);
 
     for (const el of [hotzone, bar]) {
         el.addEventListener("dragenter", onDragEnter);
@@ -218,11 +232,13 @@ async function addPin(uuid) {
     await setPins([...pins, uuid]);
 }
 
-async function confirmUnpin(event) {
+async function confirmUnpin(uuid, event) {
     if (event?.shiftKey) return true;
+    const entry = await resolvePinnable(uuid);
+    const name = foundry.utils.escapeHTML(entry?.name ?? uuid);
     return foundry.applications.api.DialogV2.confirm({
         window: { title: "PINTHIS.UnpinTitle", icon: "fa-solid fa-thumbtack" },
-        content: `<p>${game.i18n.localize("PINTHIS.UnpinConfirm")}</p>
+        content: `<p>${game.i18n.format("PINTHIS.UnpinConfirm", { name })}</p>
             <p class="notification info"><strong>${game.i18n.localize("PINTHIS.UnpinShiftTip")}</strong></p>`,
         rejectClose: false,
         modal: true,
@@ -231,7 +247,7 @@ async function confirmUnpin(event) {
 
 export async function togglePin(uuid, event) {
     if (!game.settings.get(MODULE_ID, PIN_SETTING).includes(uuid)) return addPin(uuid);
-    if (!(await confirmUnpin(event))) return;
+    if (!(await confirmUnpin(uuid, event))) return;
 
     // the pins may have changed while the dialog was open
     const pins = game.settings.get(MODULE_ID, PIN_SETTING);
@@ -240,30 +256,32 @@ export async function togglePin(uuid, event) {
 
 export async function renderPinBar() {
     const bar = document.getElementById("pin-this-bar");
-    if (!bar) return;
+    const tabs = document.getElementById("pin-this-tabs");
+    if (!bar || !tabs) return;
 
     const pins = game.settings.get(MODULE_ID, PIN_SETTING);
     const entries = await Promise.all(pins.map(resolvePinnable));
 
-    bar.innerHTML = "";
+    tabs.innerHTML = "";
     entries.forEach((entry, index) => {
         if (!entry) return;
         const uuid = pins[index];
-        bar.appendChild(buildTab(entry, uuid));
+        tabs.appendChild(buildTab(entry, uuid, tabs.children.length % ICON_COLUMNS));
     });
+    bar.classList.toggle("empty", !tabs.children.length);
 }
 
-function buildTab(entry, uuid) {
+function buildTab(entry, uuid, column) {
     const tab = document.createElement("div");
     tab.classList.add("application", "minimized", "tab");
     tab.draggable = true;
     tab.dataset.uuid = uuid;
     if (entry.documentName) tab.dataset.documentName = entry.documentName;
 
-    if (game.settings.get(MODULE_ID, TAB_STYLE_SETTING) === TAB_STYLE_ICON) {
+    if (isIconStyle()) {
         tab.dataset.tooltip = entry.name;
-        tab.dataset.tooltipDirection = "DOWN";
-        tab.dataset.tooltipClass = "pin-this-tooltip";
+        tab.dataset.tooltipDirection = "RIGHT";
+        tab.dataset.tooltipClass = `pin-this-tooltip pin-this-col-${column}`;
     } else {
         tab.title = game.i18n.format("PINTHIS.OpenPinned", { name: entry.name });
     }
@@ -351,8 +369,11 @@ function onDragTabOver(event) {
     const dragged = target.parentElement.querySelector(".dragging");
     if (!dragged || dragged === target) return;
 
+    // icons wrap in rows so compare sideways, spines are stacked so compare up and down
     const rect = target.getBoundingClientRect();
-    const before = event.clientX < rect.left + rect.width / 2;
+    const before = isIconStyle()
+        ? event.clientX < rect.left + rect.width / 2
+        : event.clientY < rect.top + rect.height / 2;
     target.parentElement.insertBefore(dragged, before ? target : target.nextSibling);
 }
 

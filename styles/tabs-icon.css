@@ -1,27 +1,45 @@
 :root {
-    --pin-this-style-icon-tooltip-margin: 16px;
+    --pin-this-icon-width: 64px;
+    --pin-this-icon-height: 96px;
+    --pin-this-icon-gap: 4px;
 }
 
 #tooltip.pin-this-tooltip {
-    margin-top: var(--pin-this-style-icon-tooltip-margin);
+    --pin-this-tooltip-skip: 0;
+    margin-left: calc(
+        var(--pin-this-tooltip-skip) * (var(--pin-this-icon-width) + var(--pin-this-icon-gap)) +
+            var(--pin-this-shelf-padding) + 12px
+    );
+
+    &.pin-this-col-0 {
+        --pin-this-tooltip-skip: 2;
+    }
+
+    &.pin-this-col-1 {
+        --pin-this-tooltip-skip: 1;
+    }
 }
+
 /* until a further notice, importanting this because im upset */
 #pin-this-bar.style-icon {
+    #pin-this-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, var(--pin-this-icon-width));
+        grid-auto-rows: var(--pin-this-icon-height);
+        gap: var(--pin-this-icon-gap);
+    }
+
     .tab {
-        width: 64px !important;
-        min-width: 64px !important;
-        height: 96px !important;
+        width: var(--pin-this-icon-width) !important;
+        min-width: var(--pin-this-icon-width) !important;
+        height: var(--pin-this-icon-height) !important;
         max-height: none !important;
         min-height: 0 !important;
-        border-top: none;
-        border-radius: 0 0 8px 8px;
+        border-radius: 8px;
         overflow: hidden !important;
-        transition:
-            filter 0.15s ease,
-            height 0.25s ease;
+        transition: filter 0.15s ease;
 
         &:hover {
-            height: calc(96px + var(--pin-this-style-icon-tooltip-margin)) !important;
             filter: brightness(1.2);
 
             .header-control {
