@@ -1,5 +1,5 @@
 {
-    "PINTHIS.Ready": "Pin This is ready. Right-click a document in a sidebar tab to pin it.",
+    "PINTHIS.Ready": "Pin This is ready. Right-click a Document in a sidebar tab to pin it.",
     "PINTHIS.ContextToggle": "Toggle Pin",
     "PINTHIS.OpenPinned": "Open {name}",
     "PINTHIS.Unpin": "Remove pin",
@@ -7,7 +7,7 @@
     "PINTHIS.UnpinTitle": "Unpin",
     "PINTHIS.UnpinConfirm": "Are you sure you want to unpin <strong>{name}</strong>?",
     "PINTHIS.UnpinShiftTip": "Holding Shift before clicking Unpin will skip this.",
-    "PINTHIS.InstalledMessage": "<strong>Pin This</strong> has been installed (v{version}). Right-click a document in a sidebar tab to pin it.",
+    "PINTHIS.InstalledMessage": "<strong>Pin This</strong> has been installed (v{version}). Right-click a Document in a sidebar tab to pin it.",
     "PINTHIS.UpdatedMessage": "<strong>Pin This</strong> has been updated to v{version}.",
     "PINTHIS.SettingTabStyleName": "Pinned Tab Style",
     "PINTHIS.SettingTabStyleHint": "Choose how pinned tabs are displayed on the shelf.",
@@ -15,5 +15,5 @@
     "PINTHIS.SettingTabStyleSpine": "Spine (icon and title side by side)",
     "PINTHIS.AddToShelf": "Add {name} to the shelf",
     "PINTHIS.DropToShelf": "Drop to add to the shelf",
-    "PINTHIS.EmptyShelf": "Right click a sheet, journal or compendium to pin it. You can also drag them here."
+    "PINTHIS.EmptyShelf": "Right click a Document or a Compendium to pin it. You can also drag them here."
 }
