@@ -1,12 +1,12 @@
 # Pin This!
 
-Pins your most important sheets to the top of the screen so you're always one click away from them. Works for the Game Master and players alike.
+Pins your most important sheets to the left side of the screen so you're always one click away from them. Works for the Game Master and players alike.
 
 It works a lot like the macro hotbar, but instead of running a macro, it opens the sheet itself, just like clicking it in its usual tab.
 
 ## About
 
-This module adds a shelf at the top of your screen. Drag anything onto it, an actor, a journal (or a page of the journal), a scene, and it shows up as a small tab. Click that tab any time to open the sheet again, no matter which sidebar tab it's normally filed under.
+This module adds a shelf that hides on the left side of your screen, marked by a small handle. Hover the handle to slide it out. Drag anything onto it, an actor, a journal (or a page of the journal), a scene, and it shows up as a small tab. Click that tab any time to open the sheet again, no matter which sidebar tab it's normally filed under.
 
 It works a bit like the macro hotbar at the bottom of your screen, but instead of a macro, you're pinning the sheet to be viewed or dragged into the scene. It's also harder to lose by accident: unpinning is its own separate button, so you won't bump it the way you might accidentally delete a macro slot.
 
