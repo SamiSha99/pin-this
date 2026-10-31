@@ -36,7 +36,7 @@
         opacity: 0.8;
     }
 
-    &:has(+ #pin-this-bar:is(.open, .drag-target))::before {
+    &:has(+ #pin-this-bar:is(.open, .drag-target), + #pin-this-bar .tab.context)::before {
         opacity: 0;
     }
 }
@@ -56,8 +56,10 @@
     transition: transform 0.25s ease-out;
     pointer-events: auto;
 
+    /* .context is on a tab while its right click menu is open, which lives outside the shelf */
     &.open,
-    &.drag-target {
+    &.drag-target,
+    &:has(.tab.context) {
         transform: translate(0, -50%);
     }
 

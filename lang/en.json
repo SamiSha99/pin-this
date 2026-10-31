@@ -5,7 +5,7 @@
     "PINTHIS.Unpin": "Remove pin",
     "PINTHIS.PinToShelf": "Pin to shelf",
     "PINTHIS.UnpinTitle": "Unpin",
-    "PINTHIS.UnpinConfirm": "Are you sure you want to remove this pin from the shelf?",
+    "PINTHIS.UnpinConfirm": "Are you sure you want to unpin <strong>{name}</strong>?",
     "PINTHIS.UnpinShiftTip": "Holding Shift before clicking Unpin will skip this.",
     "PINTHIS.InstalledMessage": "<strong>Pin This</strong> has been installed (v{version}). Right-click a document in a sidebar tab to pin it.",
     "PINTHIS.UpdatedMessage": "<strong>Pin This</strong> has been updated to v{version}.",

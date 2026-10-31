@@ -1,10 +1,13 @@
 import { MODULE_ID, registerSettings, announceVersion } from "./settings.js";
 import {
     PINNABLE_TYPES,
+    DRAGGABLE_DOCUMENT_TYPES,
     injectPinBar,
     renderPinBar,
     togglePin,
     addHeaderPinButton,
+    refreshOnDelete,
+    refreshOnPackDelete,
 } from "./pin-bar.js";
 
 Hooks.once("init", () => {
@@ -25,9 +28,9 @@ Hooks.once("ready", () => {
 for (const type of PINNABLE_TYPES) {
     Hooks.on(`get${type}ContextOptions`, (_application, menuItems) => {
         menuItems.push({
-            name: "PINTHIS.ContextToggle",
-            icon: '<i class="fas fa-thumbtack"></i>',
-            callback: (target, event) => {
+            label: "PINTHIS.ContextToggle",
+            icon: "fa-solid fa-thumbtack",
+            onClick: (event, target) => {
                 const entry = target.closest("[data-entry-id]");
                 const id = entry?.dataset?.entryId ?? entry?.dataset?.documentId;
                 const doc = game.collections.get(type)?.get(id);
@@ -36,5 +39,8 @@ for (const type of PINNABLE_TYPES) {
         });
     });
 }
+
+for (const type of DRAGGABLE_DOCUMENT_TYPES) Hooks.on(`delete${type}`, refreshOnDelete);
+Hooks.on("renderCompendiumDirectory", refreshOnPackDelete);
 
 Hooks.on("renderApplicationV2", addHeaderPinButton);

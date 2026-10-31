@@ -11,7 +11,7 @@ export const PINNABLE_TYPES = [
     "Cards",
 ];
 
-const DRAGGABLE_DOCUMENT_TYPES = [...PINNABLE_TYPES, "JournalEntryPage"];
+export const DRAGGABLE_DOCUMENT_TYPES = [...PINNABLE_TYPES, "JournalEntryPage"];
 
 const REORDER_MIME = "application/x-pin-this-uuid";
 const ICON_COLUMNS = 3;
@@ -45,6 +45,25 @@ function openDocument(doc) {
     return doc.sheet?.render(true);
 }
 
+function getDocumentContext(doc) {
+    if (doc.documentName === "JournalEntryPage")
+        return {
+            getApp: () => doc.parent?.sheet,
+            hookName: "getJournalEntryPageContextOptions",
+            dataset: { pageId: doc.id },
+        };
+
+    const Compendium = foundry.applications.sidebar.apps.Compendium;
+    return {
+        getApp: () =>
+            doc.pack
+                ? game.packs.get(doc.pack)?.apps.find((app) => app instanceof Compendium)
+                : doc.collection?.directory,
+        hookName: `get${doc.documentName}ContextOptions`,
+        dataset: { entryId: doc.id },
+    };
+}
+
 async function resolvePinnable(pin) {
     if (isPackPin(pin)) {
         const pack = game.packs.get(pin.slice(PACK_PIN_PREFIX.length));
@@ -54,6 +73,11 @@ async function resolvePinnable(pin) {
             img: null,
             fallbackIcon: PACK_FALLBACK_ICON,
             open: () => pack.render(true),
+            context: {
+                getApp: () => ui.compendium,
+                hookName: "getCompendiumContextOptions",
+                dataset: { pack: pack.collection },
+            },
         };
     }
 
@@ -65,7 +89,37 @@ async function resolvePinnable(pin) {
         fallbackIcon: FALLBACK_ICONS[doc.documentName] ?? "fa-thumbtack",
         documentName: doc.documentName,
         open: () => openDocument(doc),
+        context: getDocumentContext(doc),
     };
+}
+
+function openContextMenu(event, context, uuid) {
+    event.preventDefault();
+    event.stopPropagation();
+    const tab = event.currentTarget;
+    if (tab.classList.contains("context")) return ui.context?.close();
+
+    const app = context.getApp();
+    const items = [];
+    if (typeof app?._getEntryContextOptions === "function") {
+        items.push(...app._getEntryContextOptions());
+        Hooks.callAll(context.hookName, app, items);
+    }
+
+    const menuItems = items.filter((item) => item.label !== "PINTHIS.ContextToggle");
+    menuItems.push({
+        label: "PINTHIS.Unpin",
+        icon: "fa-solid fa-thumbtack",
+        onClick: (clickEvent) => togglePin(uuid, clickEvent),
+    });
+
+    const menu = new foundry.applications.ux.ContextMenu.implementation(
+        document.createElement("div"),
+        ".tab[data-uuid]",
+        menuItems,
+        { fixed: true, jQuery: false },
+    );
+    menu._onActivate(event);
 }
 
 function isIconStyle() {
@@ -254,6 +308,21 @@ export async function togglePin(uuid, event) {
     await setPins(pins.filter((u) => u !== uuid));
 }
 
+export function refreshOnDelete(doc) {
+    const pins = game.settings.get(MODULE_ID, PIN_SETTING);
+    if (pins.some((pin) => pin === doc.uuid || pin.startsWith(`${doc.uuid}.`))) renderPinBar();
+}
+
+// there's no hook for deleting a whole compendium but foundry apparently rerenders the compendium sidebar right after
+export function refreshOnPackDelete() {
+    const isGone = (pin) =>
+        isPackPin(pin)
+            ? !game.packs.has(pin.slice(PACK_PIN_PREFIX.length))
+            : pin.startsWith("Compendium.") && !foundry.utils.parseUuid(pin)?.collection;
+    const tabs = document.querySelectorAll("#pin-this-tabs .tab");
+    if ([...tabs].some((tab) => isGone(tab.dataset.uuid))) renderPinBar();
+}
+
 export async function renderPinBar() {
     const bar = document.getElementById("pin-this-bar");
     const tabs = document.getElementById("pin-this-tabs");
@@ -273,10 +342,12 @@ export async function renderPinBar() {
 
 function buildTab(entry, uuid, column) {
     const tab = document.createElement("div");
-    tab.classList.add("application", "minimized", "tab");
+    // directory-item and the context dataset are what foundry's own menu entries look for
+    tab.classList.add("application", "minimized", "tab", "directory-item");
     tab.draggable = true;
     tab.dataset.uuid = uuid;
     if (entry.documentName) tab.dataset.documentName = entry.documentName;
+    Object.assign(tab.dataset, entry.context.dataset);
 
     if (isIconStyle()) {
         tab.dataset.tooltip = entry.name;
@@ -325,6 +396,7 @@ function buildTab(entry, uuid, column) {
     tab.addEventListener("dragenter", onDragTabEnter);
     tab.addEventListener("dragover", onDragTabOver);
     tab.addEventListener("drop", onTabDrop);
+    tab.addEventListener("contextmenu", (event) => openContextMenu(event, entry.context, uuid));
     return tab;
 }
 
