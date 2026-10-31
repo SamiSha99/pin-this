@@ -23,7 +23,7 @@ export function registerSettings() {
             [TAB_STYLE_ICON]: "PINTHIS.SettingTabStyleIcon",
             [TAB_STYLE_SPINE]: "PINTHIS.SettingTabStyleSpine",
         },
-        default: TAB_STYLE_ICON,
+        default: TAB_STYLE_SPINE,
         requiresReload: true,
     });
 
