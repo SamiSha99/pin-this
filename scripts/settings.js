@@ -1,9 +1,11 @@
-export const MODULE_ID = "pin-this";
-export const PIN_SETTING = "pins";
-export const TAB_STYLE_SETTING = "tabStyle";
-export const TAB_STYLE_ICON = "icon";
-export const TAB_STYLE_SPINE = "spine";
-const VERSION_SETTING = "lastSeenVersion";
+import {
+    MODULE_ID,
+    PIN_SETTING,
+    TAB_STYLE_SETTING,
+    TAB_STYLE_ICON,
+    TAB_STYLE_SPINE,
+    VERSION_SETTING,
+} from "./consts.js";
 
 export function registerSettings() {
     game.settings.register(MODULE_ID, PIN_SETTING, {

@@ -1,35 +1,16 @@
-import { MODULE_ID, PIN_SETTING, TAB_STYLE_SETTING, TAB_STYLE_ICON } from "./settings.js";
-
-export const PINNABLE_TYPES = [
-    "Actor",
-    "Item",
-    "JournalEntry",
-    "Scene",
-    "RollTable",
-    "Macro",
-    "Playlist",
-    "Cards",
-];
-
-export const DRAGGABLE_DOCUMENT_TYPES = [...PINNABLE_TYPES, "JournalEntryPage"];
-
-const REORDER_MIME = "application/x-pin-this-uuid";
-const ICON_COLUMNS = 3;
-const PACK_PIN_PREFIX = "Compendium:";
-const HEADER_PIN_ACTION = "pin-this.togglePin";
-
-const FALLBACK_ICONS = {
-    Actor: "fa-user",
-    Item: "fa-suitcase",
-    JournalEntry: "fa-book-open",
-    JournalEntryPage: "fa-file-lines",
-    Scene: "fa-map",
-    RollTable: "fa-dice",
-    Macro: "fa-terminal",
-    Playlist: "fa-music",
-    Cards: "fa-layer-group",
-};
-const PACK_FALLBACK_ICON = "fa-atlas";
+import {
+    MODULE_ID,
+    PIN_SETTING,
+    TAB_STYLE_SETTING,
+    TAB_STYLE_ICON,
+    DRAGGABLE_DOCUMENT_TYPES,
+    REORDER_MIME,
+    ICON_COLUMNS,
+    PACK_PIN_PREFIX,
+    HEADER_PIN_ACTION,
+    FALLBACK_ICONS,
+    PACK_FALLBACK_ICON,
+} from "./consts.js";
 
 function isPackPin(pin) {
     return pin.startsWith(PACK_PIN_PREFIX);
