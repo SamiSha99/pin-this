@@ -20,7 +20,6 @@
     }
 }
 
-/* until a further notice, importanting this because im upset */
 #pin-this-bar.style-icon {
     #pin-this-tabs {
         display: grid;
@@ -30,13 +29,13 @@
     }
 
     .tab {
-        width: var(--pin-this-icon-width) !important;
-        min-width: var(--pin-this-icon-width) !important;
-        height: var(--pin-this-icon-height) !important;
-        max-height: none !important;
-        min-height: 0 !important;
+        width: var(--pin-this-icon-width);
+        min-width: var(--pin-this-icon-width);
+        height: var(--pin-this-icon-height);
+        max-height: none;
+        min-height: 0;
         border-radius: 8px;
-        overflow: hidden !important;
+        overflow: hidden;
         transition: filter 0.15s ease;
 
         &:hover {
@@ -48,18 +47,18 @@
         }
 
         .window-header {
-            position: absolute !important;
-            inset: 0 !important;
-            width: auto !important;
-            height: auto !important;
-            display: flex !important;
+            position: absolute;
+            inset: 0;
+            width: auto;
+            height: auto;
+            display: flex;
             align-items: center;
             justify-content: center;
             background: transparent;
             border: none;
             padding: 0;
             gap: 0;
-            pointer-events: auto !important;
+            pointer-events: auto;
 
             > * {
                 margin: 0;
@@ -71,35 +70,35 @@
         }
 
         .header-control {
-            position: absolute !important;
-            inset: 3px 3px auto auto !important;
-            width: 16px !important;
-            height: 16px !important;
-            min-width: 0 !important;
-            min-height: 0 !important;
-            font-size: 12px !important;
-            line-height: 16px !important;
-            padding: 0 !important;
+            position: absolute;
+            inset: 3px 3px auto auto;
+            width: 16px;
+            height: 16px;
+            min-width: 0;
+            min-height: 0;
+            font-size: 12px;
+            line-height: 16px;
+            padding: 0;
             opacity: 0;
             transition: opacity 0.25s ease;
         }
     }
 
     .thumb {
-        flex: none !important;
-        width: 56px !important;
-        height: 88px !important;
-        max-width: 56px !important;
-        max-height: 88px !important;
+        flex: none;
+        width: 56px;
+        height: 88px;
+        max-width: 56px;
+        max-height: 88px;
         object-fit: contain;
         border-radius: 4px;
     }
 
     & i.thumb {
-        display: flex !important;
+        display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px !important;
-        line-height: 1 !important;
+        font-size: 28px;
+        line-height: 1;
     }
 }
