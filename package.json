@@ -3,7 +3,10 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
+    "scripts": {
+        "createSymlinks": "node ./tools/create-symlinks.mjs"
+    },
     "devDependencies": {
-        "fvtt-types": "14.369.0-beta.20261027165341"
+        "js-yaml": "^5.5.0"
     }
 }

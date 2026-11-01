@@ -1,0 +1,8 @@
+# From https://foundryvtt.wiki/en/development/guides/improving-intellisense
+# Should be swapped based on where its installed
+# For windows:
+# installPath: "to-do add default path"
+# For Mac:
+# installPath: "/Applications/Foundry Virtual Tabletop.app/Contents/Resources/app"
+# For Linux environment:
+# installPath: "to-do add default path"
